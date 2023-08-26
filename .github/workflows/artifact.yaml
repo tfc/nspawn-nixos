@@ -1,0 +1,18 @@
+name: artifact
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - run: nix build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: nixos-system-x86_64-linux.tar.xz
+          path: result/tarball/nixos-system-x86_64-linux.tar.xz
