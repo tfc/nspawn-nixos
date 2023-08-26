@@ -5,12 +5,10 @@ GNU/Linux that has `systemd` using `machinectl`.
 
 ## How to run this
 
-TODO: Currently, you need nix, until the tarball is hosted somewhere.
-
-Two steps:
+You don't need `nix` or NixOS to fetch and run the image:
 
 ```sh
-machinectl import-tar $(nix build github:tfc/nspawn-nixos --print-out-paths)/tarball/* nixos
+machinectl pull-tar https://github.com/tfc/nspawn-nixos/releases/download/v1.0/nixos-system-x86_64-linux.tar.xz nixos --verify=no
 machinectl start nixos
 
 # Set root password
