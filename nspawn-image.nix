@@ -6,10 +6,10 @@
 
   system.build.installBootLoader = pkgs.writeScript "install-sbin-init.sh" ''
     #!${pkgs.runtimeShell}
-    ln -fs "$1/init" /sbin/init
+    ${pkgs.coreutils}/bin/ln -fs "$1/init" /sbin/init
   '';
 
   system.activationScripts.installInitScript = lib.mkForce ''
-    ln -fs $systemConfig/init /sbin/init
+    ${pkgs.coreutils}/bin/ln -fs $systemConfig/init /sbin/init
   '';
 }
