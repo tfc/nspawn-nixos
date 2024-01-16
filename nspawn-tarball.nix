@@ -5,7 +5,7 @@ let
 
   flakeFile = builtins.toFile "flake.nix" ''
     {
-      inputs.nixpkgs.url = "github:nixos/nixpkgs";
+      inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
 
       outputs = inputs@{ self, nixpkgs, ...}: {
         nixosConfigurations.${config.system.name} = nixpkgs.lib.nixosSystem {

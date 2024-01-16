@@ -7,6 +7,7 @@
   ];
 
   boot.isContainer = true;
+  networking.hostName = "nixos";
 
   # activate Nix Flakes
   nix.extraOptions = ''
