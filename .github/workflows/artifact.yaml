@@ -5,14 +5,22 @@ on:
   pull_request:
 
 jobs:
-  check:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+          - 'x86_64-linux'
+          - 'aarch64-linux'
     steps:
-      - uses: actions/checkout@v3
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
-      - run: nix build
-      - uses: actions/upload-artifact@v3
+
+      - name: Building tarball for ${{ matrix.arch }}
+        run: nix build
+
+      - name: Uploading artifacts
+        uses: actions/upload-artifact@v3
         with:
-          name: nixos-system-x86_64-linux.tar.xz
-          path: result/tarball/nixos-system-x86_64-linux.tar.xz
+          name: nixos-system-${{ matrix.arch }}.tar.xz
+          path: result/tarball/nixos-system-${{ matrix.arch }}.tar.xz
