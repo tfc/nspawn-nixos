@@ -37,8 +37,8 @@
         projectRootFile = "flake.nix";
         programs = {
           deadnix.enable = true;
-          hlint.enable = true;
           nixpkgs-fmt.enable = true;
+          statix.enable = true;
           shfmt.enable = true;
           shellcheck.enable = true;
         };
