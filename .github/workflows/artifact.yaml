@@ -13,15 +13,13 @@ jobs:
           - 'x86_64-linux'
           - 'aarch64-linux'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-
       - name: Building tarball for ${{ matrix.arch }}
         run: nix build
 
       - name: Uploading artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nixos-system-${{ matrix.arch }}.tar.xz
           path: result/tarball/nixos-system-${{ matrix.arch }}.tar.xz
