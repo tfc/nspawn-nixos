@@ -9,10 +9,10 @@ You don't need `nix` or NixOS to fetch and run the image:
 
 ```sh
 # x86_64-linux architecture
-machinectl pull-tar https://github.com/tfc/nspawn-nixos/releases/download/v1.2/nixos-system-x86_64-linux.tar.xz nixos --verify=no
+machinectl pull-tar https://github.com/tfc/nspawn-nixos/releases/download/v1.3.0/nixos-system-x86_64-linux.tar.xz nixos --verify=no
 
 # aarch64-linux architecture
-machinectl pull-tar https://github.com/tfc/nspawn-nixos/releases/download/v1.2/nixos-system-aarch64-linux.tar.xz nixos --verify=no
+machinectl pull-tar https://github.com/tfc/nspawn-nixos/releases/download/v1.3.0/nixos-system-aarch64-linux.tar.xz nixos --verify=no
 
 machinectl start nixos
 # Set root password
