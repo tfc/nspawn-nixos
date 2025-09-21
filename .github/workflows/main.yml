@@ -1,0 +1,101 @@
+name: Build and Release
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g., v1.0.0) - leave empty to auto-increment"
+        required: false
+        type: string
+      increment:
+        description: "How to increment version if not specified"
+        required: false
+        default: "minor"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - arch: "x86_64-linux"
+            os: ubuntu-latest
+          - arch: "aarch64-linux"
+            os: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: cachix/install-nix-action@c202056c6d0293bbc1c45caaa531f8f918914e53 # v31
+      - name: Building tarball for ${{ matrix.arch }}
+        run: nix build
+      - name: Uploading artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: nixos-system-${{ matrix.arch }}.tar.xz
+          path: result/tarball/nixos-system-${{ matrix.arch }}.tar.xz
+  release:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    needs: build
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          fetch-depth: 0
+      - name: Determine new version
+        id: version
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          CLEAN_VERSION=${LATEST_TAG#v}
+          if [[ -n "${{ github.event.inputs.version }}" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+            # Strip 'v' prefix if present, then add it back consistently
+            CLEAN_VERSION=${INPUT_VERSION#v}
+            VERSION="v$CLEAN_VERSION"
+            echo "Using provided version: $VERSION"
+          else
+            # Ensure we have a full semver (pad with .0 if needed)
+            case $(echo "$CLEAN_VERSION" | tr '.' '\n' | wc -l) in
+              1) CLEAN_VERSION="$CLEAN_VERSION.0.0" ;;
+              2) CLEAN_VERSION="$CLEAN_VERSION.0" ;;
+            esac
+            npm install -g semver
+            NEW_VERSION=$(semver -i ${{ github.event.inputs.increment || 'minor' }} $CLEAN_VERSION)
+            VERSION="v$NEW_VERSION"
+            echo "Auto-incremented from $LATEST_TAG to: $VERSION"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "prev_version=${LATEST_TAG}" >> $GITHUB_OUTPUT
+      - name: Update README
+        run: |
+          sed -i 's/${{ steps.version.outputs.prev_version }}/${{ steps.version.outputs.version }}/g' README.md
+
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --staged --quiet || git commit -m "update README.md"
+          git push
+      - name: Create tag
+        run: |
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
+      - name: Download artifacts
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          path: artifacts/
+      - name: Create release
+        run: |
+          gh release create ${{ steps.version.outputs.version }} \
+            --title "Release ${{ steps.version.outputs.version }}" \
+            --notes "Release ${{ steps.version.outputs.version }}" \
+            --latest \
+            artifacts/*/nixos-system-*.tar.xz
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
