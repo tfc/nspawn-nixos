@@ -21,7 +21,7 @@ machinectl login nixos
 ```
 
 There are also nightly build artifacts available in the
-[github actions](https://github.com/phanirithvij/nspawn-nixos/actions/workflows/main.yml).
+[github actions](https://github.com/tfc/nspawn-nixos/actions/workflows/main.yml).
 
 You can also change the configuration in this repository first, and then import
 a local build:
