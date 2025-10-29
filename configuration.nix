@@ -6,7 +6,6 @@
     ./nspawn-image.nix
   ];
 
-  boot.isContainer = true;
   networking.hostName = "nixos";
 
   # activate Nix Flakes

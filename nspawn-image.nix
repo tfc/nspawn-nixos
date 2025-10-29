@@ -12,4 +12,7 @@
   system.activationScripts.installInitScript = lib.mkForce ''
     ${pkgs.coreutils}/bin/ln -fs $systemConfig/init /sbin/init
   '';
+
+  boot.isNspawnContainer = true;
+  console.enable = true;
 }
